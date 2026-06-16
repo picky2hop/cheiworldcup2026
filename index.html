@@ -26,40 +26,50 @@
 </head>
 <body class="pb-24 text-gray-800">
 
+    <!-- Header โฉมใหม่ (ข้อ 2) -->
     <header class="glass-header sticky top-0 z-50 shadow-sm px-4 py-3 flex justify-between items-center border-b border-gray-200">
+        <!-- ฝั่งซ้าย: โลโก้แอป -->
         <div class="flex items-center gap-2">
-            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
-                <i class="fa-solid fa-trophy"></i>
-            </div>
+            <i class="fa-solid fa-trophy text-blue-600 text-2xl"></i>
+            <h1 class="font-bold text-md leading-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-purple-700">World Cup<br>2026</h1>
+        </div>
+        <!-- ฝั่งขวา: รูปโปรไฟล์และชื่อ LINE -->
+        <div class="flex items-center gap-2 text-right">
             <div>
-                <h1 class="font-bold text-lg leading-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-purple-700">World Cup 2026</h1>
-                <p class="text-xs text-gray-500" id="userNameDisplay">กำลังโหลดข้อมูลผู้ใช้...</p>
+                <p class="text-xs text-gray-500">ผู้ใช้งาน</p>
+                <p class="font-bold text-sm text-gray-800" id="userNameDisplay">กำลังโหลด...</p>
             </div>
+            <img id="userProfilePic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="w-10 h-10 rounded-full border-2 border-blue-500 object-cover shadow-sm">
         </div>
     </header>
 
+    <!-- Loading Overlay -->
     <div id="loadingOverlay" class="fixed inset-0 bg-white/80 z-[100] flex flex-col items-center justify-center">
         <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
         <p class="text-gray-600 font-semibold" id="loadingText">กำลังโหลดข้อมูล...</p>
     </div>
 
+    <!-- Main Content -->
     <main class="p-4 max-w-md mx-auto">
         
+        <!-- Tab 1: Leaderboard (ข้อ 1) -->
         <section id="tab-leaderboard" class="tab-content active">
             <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-ranking-star text-yellow-500"></i> อันดับคะแนนสูงสุด</h2>
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100" id="leaderboardContainer"></div>
         </section>
 
+        <!-- Tab 2: Results (ข้อ 4) -->
         <section id="tab-results" class="tab-content">
             <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-futbol text-green-500"></i> ผลการแข่งขันจริง</h2>
             <div class="space-y-3" id="resultsContainer"></div>
         </section>
 
+        <!-- Tab 3: Predict -->
         <section id="tab-predict" class="tab-content">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-pen-to-square text-blue-500"></i> ส่งผลทายของคุณ</h2>
             </div>
-            <div class="bg-blue-50 border border-blue-200 text-blue-800 text-xs p-3 rounded-xl mb-4">
+            <div class="bg-blue-50 border border-blue-200 text-blue-800 text-xs p-3 rounded-xl mb-4 shadow-sm">
                 <i class="fa-solid fa-circle-info mr-1"></i> เลือกทายผล เหย้า เสมอ หรือเยือน (ทายถูกรับคู่ละ 3 แต้ม) เมื่อเลือกครบแล้วต้องกดปุ่ม "บันทึกการทายผล" ด้านล่างสุดด้วยครับ
             </div>
             
@@ -74,6 +84,7 @@
 
     </main>
 
+    <!-- Bottom Navigation -->
     <nav class="fixed bottom-0 w-full bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50">
         <div class="flex justify-around max-w-md mx-auto">
             <button onclick="switchTab('leaderboard')" class="tab-btn active flex-1 py-3 flex flex-col items-center text-gray-400 hover:text-blue-600 transition-colors" data-target="tab-leaderboard">
@@ -93,6 +104,7 @@
         </div>
     </nav>
 
+    <!-- Alert Modal -->
     <div id="alertModal" class="fixed inset-0 bg-black/60 z-[200] hidden items-center justify-center p-4">
         <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl transform transition-all scale-95 opacity-0" id="alertModalContent">
             <div id="alertIcon" class="text-4xl mb-3"></div>
@@ -104,15 +116,41 @@
 
     <script>
         // ==========================================
-        // ⚙️ ส่วนตั้งค่าลิงก์เชื่อมโยงระบบ (แก้ไขตรงนี้)
+        // ⚙️ การตั้งค่าระบบ
         // ==========================================
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbycq1JpdZ9lMWALu-LpIza6EQF-NfBSu6n_ixhu30Gh6F6drap7fgbClAEe9hzXqi4S5A/exec'; // วาง URL จากขั้นตอนที่ 2 ตรงนี้
-        const LIFF_ID = 'YOUR_LINE_LIFF_ID'; // เก็บไว้ใส่หลังจากเปิดใช้ LINE LIFF นู่นเลยครับ
+        const GAS_URL = 'YOUR_GAS_WEB_APP_URL'; // <--- ใส่ URL ตรงนี้
+        const LIFF_ID = 'YOUR_LINE_LIFF_ID';
 
-        let currentUser = { uid: 'test_user_01', displayName: 'ผู้เล่นทดสอบ' }; 
+        let currentUser = { 
+            uid: 'test_user_01', 
+            displayName: 'ผู้เล่นทดสอบ',
+            pictureUrl: 'https://cdn-icons-png.flaticon.com/512/149/149071.png'
+        }; 
         let allMatches = [];
         let userPreds = {};
         let myPredictions = {}; 
+
+        // 🏳️ (ข้อ 3) ฐานข้อมูลอิโมจิธงชาติ
+        const flagMap = {
+            "เช็กเกีย": "🇨🇿", "แอฟริกาใต้": "🇿🇦", "สวิตเซอร์แลนด์": "🇨🇭", "บอสเนีย": "🇧🇦",
+            "แคนาดา": "🇨🇦", "กาตาร์": "🇶🇦", "เม็กซิโก": "🇲🇽", "เกาหลีใต้": "🇰🇷",
+            "สหรัฐอเมริกา": "🇺🇸", "ออสเตรเลีย": "🇦🇺", "สกอตแลนด์": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "โมร็อกโก": "🇲🇦",
+            "บราซิล": "🇧🇷", "เฮติ": "🇭🇹", "ตุรกี": "🇹🇷", "ปารากวัย": "🇵🇾",
+            "เนเธอร์แลนด์": "🇳🇱", "สวีเดน": "🇸🇪", "เยอรมนี": "🇩🇪", "ไอวอรีโคสต์": "🇨🇮",
+            "เอกวาดอร์": "🇪🇨", "กูราเซา": "🇨🇼", "ตูนิเซีย": "🇹🇳", "ญี่ปุ่น": "🇯🇵",
+            "สเปน": "🇪🇸", "ซาอุดีอาระเบีย": "🇸🇦", "เบลเยียม": "🇧🇪", "อิหร่าน": "🇮🇷",
+            "อุรุกวัย": "🇺🇾", "เคปเวิร์ด": "🇨🇻", "นิวซีแลนด์": "🇳🇿", "อียิปต์": "🇪🇬",
+            "อาร์เจนตินา": "🇦🇷", "ออสเตรีย": "🇦🇹", "ฝรั่งเศส": "🇫🇷", "อิรัก": "🇮🇶",
+            "นอร์เวย์": "🇳🇴", "เซเนกัล": "🇸🇳", "จอร์แดน": "🇯🇴", "แอลจีเรีย": "🇩🇿",
+            "โปรตุเกส": "🇵🇹", "อุซเบกิสถาน": "🇺🇿", "อังกฤษ": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "กานา": "🇬🇭",
+            "ปานามา": "🇵🇦", "โครเอเชีย": "🇭🇷", "โคลอมเบีย": "🇨🇴", "ดีอาร์ คองโก": "🇨🇩"
+        };
+
+        // ฟังก์ชันช่วยเติมธงชาติ
+        function addFlag(countryName) {
+            const flag = flagMap[countryName] || "🏳️";
+            return `${flag} ${countryName}`;
+        }
 
         window.onload = async () => {
             if(LIFF_ID && LIFF_ID !== 'YOUR_LINE_LIFF_ID') {
@@ -120,17 +158,23 @@
                     await liff.init({ liffId: LIFF_ID });
                     if (liff.isLoggedIn()) {
                         const profile = await liff.getProfile();
-                        currentUser = { uid: profile.userId, displayName: profile.displayName };
+                        currentUser = { 
+                            uid: profile.userId, 
+                            displayName: profile.displayName,
+                            pictureUrl: profile.pictureUrl || currentUser.pictureUrl
+                        };
                     } else {
                         liff.login();
                     }
                 } catch (err) {
                     console.error('LIFF Error:', err);
                 }
-            } else {
-                console.log('ระบบทำงานในโหมดทดสอบ (ยังไม่ได้ระบุ LIFF ID)');
             }
-            document.getElementById('userNameDisplay').innerText = `สวัสดี, ${currentUser.displayName}`;
+            
+            // อัปเดต UI หน้าเว็บข้อ 2 (ชื่อและรูปมุมขวาบน)
+            document.getElementById('userNameDisplay').innerText = currentUser.displayName;
+            document.getElementById('userProfilePic').src = currentUser.pictureUrl;
+            
             fetchData();
         };
 
@@ -149,14 +193,8 @@
             if (!dateString) return "ยังไม่ระบุเวลา";
             const d = new Date(dateString);
             if(isNaN(d)) return dateString;
-
             const thMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-            const day = d.getDate();
-            const month = thMonths[d.getMonth()];
-            const year = (d.getFullYear() + 543).toString().slice(-2);
-            const time = d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-            
-            return `${day} ${month} ${year} • ${time} น.`;
+            return `${d.getDate()} ${thMonths[d.getMonth()]} ${(d.getFullYear() + 543).toString().slice(-2)} • ${d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.`;
         }
 
         async function fetchData() {
@@ -176,7 +214,7 @@
                 }
             } catch (error) {
                 console.error(error);
-                showAlert('❌ เกิดข้อผิดพลาด', 'ไม่สามารถดึงข้อมูลจากระบบหลังบ้านได้ กรุณาตรวจสอบ URL ของ GAS');
+                showAlert('❌ เกิดข้อผิดพลาด', 'ไม่สามารถดึงข้อมูลได้ กรุณาตรวจสอบลิงก์อีกครั้ง');
             } finally {
                 showLoading(false);
             }
@@ -198,16 +236,19 @@
 
                 const isMe = user.name === currentUser.displayName;
                 const bgClass = isMe ? 'bg-blue-50' : 'bg-white';
+                const picUrl = user.pic || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
 
+                // (ข้อ 1) เพิ่มรูปโปรไฟล์ในตารางอันดับ
                 html += `
-                    <li class="flex items-center justify-between p-4 ${bgClass}">
-                        <div class="flex items-center gap-4">
+                    <li class="flex items-center justify-between p-4 ${bgClass} hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center gap-3">
                             ${rankIcon}
+                            <img src="${picUrl}" class="w-9 h-9 rounded-full object-cover border border-gray-200 shadow-sm">
                             <div><p class="font-bold text-gray-800 text-sm ${isMe ? 'text-blue-700' : ''}">${user.name} ${isMe ? '(คุณ)' : ''}</p></div>
                         </div>
                         <div class="text-right">
                             <span class="font-extrabold text-lg text-blue-600">${user.score}</span>
-                            <span class="text-xs text-gray-500">คะแนน</span>
+                            <span class="text-[10px] text-gray-500 block -mt-1">คะแนน</span>
                         </div>
                     </li>
                 `;
@@ -219,25 +260,57 @@
         function renderResults(matches) {
             const container = document.getElementById('resultsContainer');
             let html = '';
+            
+            const predTextMap = {'H': 'เหย้าชนะ', 'D': 'เสมอ', 'A': 'เยือนชนะ'};
 
             matches.forEach(m => {
                 const isFinished = m.rawResult && m.rawResult !== '';
                 const displayResult = isFinished ? m.rawResult : 'VS';
                 const textColor = isFinished ? 'text-blue-600 font-extrabold' : 'text-gray-400';
 
+                // (ข้อ 4) กล่องแสดงข้อมูลที่เราทายไว้และแต้มที่ได้
+                const myPred = myPredictions[m.id];
+                let myPredictionHTML = '';
+                
+                if (myPred) {
+                    let statusColor = 'text-gray-500';
+                    let pointsText = 'รอผลแข่ง';
+                    let icon = '<i class="fa-solid fa-clock-rotate-left"></i>';
+                    
+                    if (isFinished) {
+                        if (myPred === m.result) {
+                            statusColor = 'text-green-600';
+                            pointsText = '+3 แต้ม';
+                            icon = '<i class="fa-solid fa-circle-check"></i>';
+                        } else {
+                            statusColor = 'text-red-500';
+                            pointsText = '0 แต้ม';
+                            icon = '<i class="fa-solid fa-circle-xmark"></i>';
+                        }
+                    }
+                    
+                    myPredictionHTML = `
+                        <div class="mt-3 bg-gray-50 border border-gray-100 rounded-lg p-2.5 flex justify-between items-center text-xs">
+                            <div class="text-gray-600">คุณทาย: <span class="font-bold text-gray-800">${predTextMap[myPred]}</span></div>
+                            <div class="font-bold ${statusColor}">${icon} ${pointsText}</div>
+                        </div>
+                    `;
+                }
+
                 html += `
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
-                        <div class="flex justify-between items-center mb-2">
+                        <div class="flex justify-between items-center mb-3">
                             <span class="text-xs font-bold text-gray-500">คู่ที่ ${m.id}</span>
                             <span class="text-[10px] text-gray-400"><i class="fa-regular fa-calendar"></i> ${formatDateTime(m.matchTime)}</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <div class="flex-1 text-right font-bold text-gray-800 text-sm pr-2">${m.home}</div>
+                            <div class="flex-1 text-right font-bold text-gray-800 text-sm pr-2">${addFlag(m.home)}</div>
                             <div class="px-4 py-1.5 bg-gray-100 rounded-xl text-center text-sm font-bold min-w-[65px] ${textColor}">
                                 ${displayResult}
                             </div>
-                            <div class="flex-1 text-left font-bold text-gray-800 text-sm pl-2">${m.away}</div>
+                            <div class="flex-1 text-left font-bold text-gray-800 text-sm pl-2">${addFlag(m.away)}</div>
                         </div>
+                        ${myPredictionHTML}
                     </div>
                 `;
             });
@@ -251,7 +324,6 @@
 
             matches.forEach(m => {
                 const isFinished = m.result && m.result !== '';
-                
                 let isTimeOver = false;
                 if(m.matchTime) {
                     const matchDate = new Date(m.matchTime);
@@ -278,10 +350,10 @@
                             <span class="text-xs font-bold text-blue-800 bg-blue-100 px-2 py-0.5 rounded">คู่ที่ ${m.id}</span>
                             ${statusBadge}
                         </div>
-                        <div class="flex justify-between items-center mb-3">
-                            <div class="flex-1 text-right pr-2 font-bold text-sm text-gray-700">${m.home}</div>
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex-1 text-right pr-2 font-bold text-sm text-gray-700 leading-tight">${addFlag(m.home)}</div>
                             <div class="text-gray-300 text-xs">vs</div>
-                            <div class="flex-1 text-left pl-2 font-bold text-sm text-gray-700">${m.away}</div>
+                            <div class="flex-1 text-left pl-2 font-bold text-sm text-gray-700 leading-tight">${addFlag(m.away)}</div>
                         </div>
                         
                         <div class="grid grid-cols-3 gap-2">
@@ -315,6 +387,7 @@
             const payload = {
                 uid: currentUser.uid,
                 displayName: currentUser.displayName,
+                pictureUrl: currentUser.pictureUrl, // (ข้อ 1,2) ส่งรูปไปหลังบ้านด้วย
                 predictions: myPredictions
             };
 
