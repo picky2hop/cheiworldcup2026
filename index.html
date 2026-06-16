@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ทายผลฟุตบอลโลก 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap');
+        body { font-family: 'Prompt', sans-serif; background-color: #f3f4f6; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .glass-header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        .btn-predict { transition: all 0.2s; }
+        .btn-predict.selected { transform: scale(1.05); font-weight: bold; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .btn-predict.H.selected { background-color: #3b82f6; color: white; border-color: #3b82f6; }
+        .btn-predict.D.selected { background-color: #10b981; color: white; border-color: #10b981; }
+        .btn-predict.A.selected { background-color: #ef4444; color: white; border-color: #ef4444; }
+        .loader { border-top-color: #3b82f6; -webkit-animation: spinner 1.5s linear infinite; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="pb-24 text-gray-800">
+
+    <header class="glass-header sticky top-0 z-50 shadow-sm px-4 py-3 flex justify-between items-center border-b border-gray-200">
+        <div class="flex items-center gap-2">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg leading-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-purple-700">World Cup 2026</h1>
+                <p class="text-xs text-gray-500" id="userNameDisplay">กำลังโหลดข้อมูลผู้ใช้...</p>
+            </div>
+        </div>
+    </header>
+
+    <div id="loadingOverlay" class="fixed inset-0 bg-white/80 z-[100] flex flex-col items-center justify-center">
+        <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+        <p class="text-gray-600 font-semibold" id="loadingText">กำลังโหลดข้อมูล...</p>
+    </div>
+
+    <main class="p-4 max-w-md mx-auto">
+        
+        <section id="tab-leaderboard" class="tab-content active">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-ranking-star text-yellow-500"></i> อันดับคะแนนสูงสุด</h2>
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100" id="leaderboardContainer"></div>
+        </section>
+
+        <section id="tab-results" class="tab-content">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-futbol text-green-500"></i> ผลการแข่งขันจริง</h2>
+            <div class="space-y-3" id="resultsContainer"></div>
+        </section>
+
+        <section id="tab-predict" class="tab-content">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-pen-to-square text-blue-500"></i> ส่งผลทายของคุณ</h2>
+            </div>
+            <div class="bg-blue-50 border border-blue-200 text-blue-800 text-xs p-3 rounded-xl mb-4">
+                <i class="fa-solid fa-circle-info mr-1"></i> เลือกทายผล เหย้า เสมอ หรือเยือน (ทายถูกรับคู่ละ 3 แต้ม) เมื่อเลือกครบแล้วต้องกดปุ่ม "บันทึกการทายผล" ด้านล่างสุดด้วยครับ
+            </div>
+            
+            <form id="predictionForm">
+                <div class="space-y-4" id="predictContainer"></div>
+                
+                <button type="button" onclick="submitPredictions()" class="mt-6 w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> บันทึกการทายผล
+                </button>
+            </form>
+        </section>
+
+    </main>
+
+    <nav class="fixed bottom-0 w-full bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50">
+        <div class="flex justify-around max-w-md mx-auto">
+            <button onclick="switchTab('leaderboard')" class="tab-btn active flex-1 py-3 flex flex-col items-center text-gray-400 hover:text-blue-600 transition-colors" data-target="tab-leaderboard">
+                <i class="fa-solid fa-ranking-star text-xl mb-1"></i>
+                <span class="text-[10px] font-semibold">จัดอันดับ</span>
+            </button>
+            <button onclick="switchTab('results')" class="tab-btn flex-1 py-3 flex flex-col items-center text-gray-400 hover:text-blue-600 transition-colors" data-target="tab-results">
+                <i class="fa-solid fa-futbol text-xl mb-1"></i>
+                <span class="text-[10px] font-semibold">ผลแข่ง</span>
+            </button>
+            <button onclick="switchTab('predict')" class="tab-btn flex-1 py-3 flex flex-col items-center text-gray-400 hover:text-blue-600 transition-colors relative" data-target="tab-predict">
+                <div class="absolute -top-4 bg-blue-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg border-4 border-white">
+                    <i class="fa-solid fa-pen text-xl"></i>
+                </div>
+                <span class="text-[10px] font-semibold mt-7">ทายผล</span>
+            </button>
+        </div>
+    </nav>
+
+    <div id="alertModal" class="fixed inset-0 bg-black/60 z-[200] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl transform transition-all scale-95 opacity-0" id="alertModalContent">
+            <div id="alertIcon" class="text-4xl mb-3"></div>
+            <h3 id="alertTitle" class="text-xl font-bold mb-2"></h3>
+            <p id="alertMessage" class="text-gray-600 mb-6"></p>
+            <button onclick="closeModal()" class="bg-blue-600 text-white font-bold py-2 px-8 rounded-xl w-full hover:bg-blue-700">ตกลง</button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // ⚙️ ส่วนตั้งค่าลิงก์เชื่อมโยงระบบ (แก้ไขตรงนี้)
+        // ==========================================
+        const GAS_URL = 'https://script.google.com/macros/library/d/13rFYxsqZdQYSKeO7NxHl1dQSFMsE5E4leO9XhG-6NVllIcTx7OS4nrPW/1'; // วาง URL จากขั้นตอนที่ 2 ตรงนี้
+        const LIFF_ID = 'YOUR_LINE_LIFF_ID'; // เก็บไว้ใส่หลังจากเปิดใช้ LINE LIFF นู่นเลยครับ
+
+        let currentUser = { uid: 'test_user_01', displayName: 'ผู้เล่นทดสอบ' }; 
+        let allMatches = [];
+        let userPreds = {};
+        let myPredictions = {}; 
+
+        window.onload = async () => {
+            if(LIFF_ID && LIFF_ID !== 'YOUR_LINE_LIFF_ID') {
+                try {
+                    await liff.init({ liffId: LIFF_ID });
+                    if (liff.isLoggedIn()) {
+                        const profile = await liff.getProfile();
+                        currentUser = { uid: profile.userId, displayName: profile.displayName };
+                    } else {
+                        liff.login();
+                    }
+                } catch (err) {
+                    console.error('LIFF Error:', err);
+                }
+            } else {
+                console.log('ระบบทำงานในโหมดทดสอบ (ยังไม่ได้ระบุ LIFF ID)');
+            }
+            document.getElementById('userNameDisplay').innerText = `สวัสดี, ${currentUser.displayName}`;
+            fetchData();
+        };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('text-blue-600');
+                if(el.dataset.target !== 'tab-predict') el.classList.add('text-gray-400');
+            });
+            document.getElementById('tab-' + tabId).classList.add('active');
+            const activeBtn = document.querySelector(`[data-target="tab-${tabId}"]`);
+            if(tabId !== 'predict') activeBtn.classList.add('text-blue-600');
+        }
+
+        function formatDateTime(dateString) {
+            if (!dateString) return "ยังไม่ระบุเวลา";
+            const d = new Date(dateString);
+            if(isNaN(d)) return dateString;
+
+            const thMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+            const day = d.getDate();
+            const month = thMonths[d.getMonth()];
+            const year = (d.getFullYear() + 543).toString().slice(-2);
+            const time = d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+            
+            return `${day} ${month} ${year} • ${time} น.`;
+        }
+
+        async function fetchData() {
+            showLoading(true, "กำลังดึงข้อมูลล่าสุด...");
+            try {
+                const response = await fetch(`${GAS_URL}?action=getData&uid=${currentUser.uid}`);
+                const data = await response.json();
+                
+                if(data.status === 'success') {
+                    allMatches = data.matches;
+                    userPreds = data.userPredictions || {};
+                    myPredictions = {...userPreds}; 
+                    
+                    renderLeaderboard(data.leaderboard);
+                    renderResults(allMatches);
+                    renderPredictForm(allMatches);
+                }
+            } catch (error) {
+                console.error(error);
+                showAlert('❌ เกิดข้อผิดพลาด', 'ไม่สามารถดึงข้อมูลจากระบบหลังบ้านได้ กรุณาตรวจสอบ URL ของ GAS');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function renderLeaderboard(leaderboard) {
+            const container = document.getElementById('leaderboardContainer');
+            if(leaderboard.length === 0) {
+                container.innerHTML = '<div class="p-6 text-center text-gray-500">ยังไม่มีผู้เข้าแข่งขันในระบบ</div>';
+                return;
+            }
+
+            let html = '<ul class="divide-y divide-gray-100">';
+            leaderboard.forEach((user, index) => {
+                let rankIcon = `<span class="font-bold text-gray-500 w-6 text-center">${index + 1}</span>`;
+                if(index === 0) rankIcon = `<i class="fa-solid fa-medal text-yellow-400 text-xl w-6 text-center"></i>`;
+                else if(index === 1) rankIcon = `<i class="fa-solid fa-medal text-gray-400 text-xl w-6 text-center"></i>`;
+                else if(index === 2) rankIcon = `<i class="fa-solid fa-medal text-amber-600 text-xl w-6 text-center"></i>`;
+
+                const isMe = user.name === currentUser.displayName;
+                const bgClass = isMe ? 'bg-blue-50' : 'bg-white';
+
+                html += `
+                    <li class="flex items-center justify-between p-4 ${bgClass}">
+                        <div class="flex items-center gap-4">
+                            ${rankIcon}
+                            <div><p class="font-bold text-gray-800 text-sm ${isMe ? 'text-blue-700' : ''}">${user.name} ${isMe ? '(คุณ)' : ''}</p></div>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-extrabold text-lg text-blue-600">${user.score}</span>
+                            <span class="text-xs text-gray-500">คะแนน</span>
+                        </div>
+                    </li>
+                `;
+            });
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+
+        function renderResults(matches) {
+            const container = document.getElementById('resultsContainer');
+            let html = '';
+
+            matches.forEach(m => {
+                const isFinished = m.rawResult && m.rawResult !== '';
+                const displayResult = isFinished ? m.rawResult : 'VS';
+                const textColor = isFinished ? 'text-blue-600 font-extrabold' : 'text-gray-400';
+
+                html += `
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-gray-500">คู่ที่ ${m.id}</span>
+                            <span class="text-[10px] text-gray-400"><i class="fa-regular fa-calendar"></i> ${formatDateTime(m.matchTime)}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex-1 text-right font-bold text-gray-800 text-sm pr-2">${m.home}</div>
+                            <div class="px-4 py-1.5 bg-gray-100 rounded-xl text-center text-sm font-bold min-w-[65px] ${textColor}">
+                                ${displayResult}
+                            </div>
+                            <div class="flex-1 text-left font-bold text-gray-800 text-sm pl-2">${m.away}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderPredictForm(matches) {
+            const container = document.getElementById('predictContainer');
+            let html = '';
+            const now = new Date();
+
+            matches.forEach(m => {
+                const isFinished = m.result && m.result !== '';
+                
+                let isTimeOver = false;
+                if(m.matchTime) {
+                    const matchDate = new Date(m.matchTime);
+                    if(!isNaN(matchDate) && now >= matchDate) {
+                        isTimeOver = true;
+                    }
+                }
+
+                const isLocked = isFinished || isTimeOver;
+                const currentPred = myPredictions[m.id] || '';
+                
+                let statusBadge = '';
+                if(isFinished) {
+                    statusBadge = '<span class="text-xs text-green-600 font-bold"><i class="fa-solid fa-check-circle"></i> สรุปแต้มแล้ว</span>';
+                } else if (isTimeOver) {
+                    statusBadge = '<span class="text-xs text-red-500 font-bold"><i class="fa-solid fa-lock"></i> ปิดรับทายผล</span>';
+                } else {
+                    statusBadge = `<span class="text-[10px] text-blue-600 font-medium"><i class="fa-regular fa-clock"></i> เริ่มแข่ง: ${formatDateTime(m.matchTime)}</span>`;
+                }
+
+                html += `
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-bold text-blue-800 bg-blue-100 px-2 py-0.5 rounded">คู่ที่ ${m.id}</span>
+                            ${statusBadge}
+                        </div>
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="flex-1 text-right pr-2 font-bold text-sm text-gray-700">${m.home}</div>
+                            <div class="text-gray-300 text-xs">vs</div>
+                            <div class="flex-1 text-left pl-2 font-bold text-sm text-gray-700">${m.away}</div>
+                        </div>
+                        
+                        <div class="grid grid-cols-3 gap-2">
+                            <button type="button" ${isLocked ? 'disabled' : ''} onclick="selectPrediction('${m.id}', 'H')" 
+                                class="btn-predict H ${currentPred === 'H' ? 'selected' : ''} ${isLocked ? 'opacity-40 cursor-not-allowed' : ''} py-2.5 rounded-xl border border-gray-200 text-xs font-semibold text-gray-600">
+                                เหย้าชนะ
+                            </button>
+                            <button type="button" ${isLocked ? 'disabled' : ''} onclick="selectPrediction('${m.id}', 'D')" 
+                                class="btn-predict D ${currentPred === 'D' ? 'selected' : ''} ${isLocked ? 'opacity-40 cursor-not-allowed' : ''} py-2.5 rounded-xl border border-gray-200 text-xs font-semibold text-gray-600">
+                                เสมอ
+                            </button>
+                            <button type="button" ${isLocked ? 'disabled' : ''} onclick="selectPrediction('${m.id}', 'A')" 
+                                class="btn-predict A ${currentPred === 'A' ? 'selected' : ''} ${isLocked ? 'opacity-40 cursor-not-allowed' : ''} py-2.5 rounded-xl border border-gray-200 text-xs font-semibold text-gray-600">
+                                เยือนชนะ
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function selectPrediction(matchId, result) {
+            myPredictions[matchId] = result;
+            renderPredictForm(allMatches); 
+        }
+
+        async function submitPredictions() {
+            showLoading(true, "กำลังบันทึกข้อมูล...");
+
+            const payload = {
+                uid: currentUser.uid,
+                displayName: currentUser.displayName,
+                predictions: myPredictions
+            };
+
+            try {
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                
+                const data = await response.json();
+                
+                if(data.status === 'success') {
+                    showAlert('🎉 สำเร็จ!', 'บันทึกการทายผลของคุณเรียบร้อยแล้ว', 'success');
+                    fetchData(); 
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error(error);
+                showAlert('❌ บันทึกไม่สำเร็จ', 'เกิดข้อผิดพลาดในการเชื่อมต่อหลังบ้าน กรุณาลองใหม่อีกครั้ง');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function showLoading(show, text = "") {
+            const overlay = document.getElementById('loadingOverlay');
+            if(show) {
+                document.getElementById('loadingText').innerText = text;
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+            } else {
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+            }
+        }
+
+        function showAlert(title, message, type = 'error') {
+            const modal = document.getElementById('alertModal');
+            const content = document.getElementById('alertModalContent');
+            
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertMessage').innerText = message;
+            
+            const iconEl = document.getElementById('alertIcon');
+            if(type === 'success') {
+                iconEl.innerHTML = '<i class="fa-regular fa-circle-check text-green-500"></i>';
+            } else {
+                iconEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-red-500"></i>';
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('alertModal');
+            const content = document.getElementById('alertModalContent');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+    </script>
+</body>
+</html>
