@@ -11,11 +11,11 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap');
         
-        /* 🌟 (ข้อ 3) ใส่ Background เมสซี่ 2022 จางๆ */
+        /* 🌟 ภาพพื้นหลังเมสซี่ 2022 แบบถูกต้อง */
         body { 
             font-family: 'Prompt', sans-serif; 
             background-color: #f3f4f6; 
-            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('https://e00-marca.uecdn.es/assets/multimedia/imagenes/2022/12/18/16713886576974.jpg');
+            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Lionel_Messi_WC2022.jpg/800px-Lionel_Messi_WC2022.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -74,11 +74,9 @@
                 <h2 class="text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-futbol text-green-500"></i> ผลการแข่งขัน</h2>
             </div>
             
-            <!-- 🌟 (ข้อ 2) Dropdown เลือกวันที่ -->
             <div class="mb-4">
                 <select id="dateFilterSelect" onchange="applyDateFilter()" class="w-full bg-white/90 border border-gray-200 text-gray-700 text-sm rounded-xl px-4 py-3 shadow-sm focus:outline-none focus:border-blue-500">
                     <option value="ALL">🗓️ ดูตารางการแข่งขันทั้งหมด</option>
-                    <!-- ตัวเลือกวันที่จะถูกแทรกผ่าน JS -->
                 </select>
             </div>
 
@@ -116,14 +114,12 @@
         </div>
     </nav>
 
-    <!-- Bottom Sheet สำหรับสถิติผลแข่งรวม (ฟีเจอร์เดิม) -->
     <div id="sheetBackdrop" class="sheet-backdrop" onclick="closeMatchStats()"></div>
     <div id="bottomSheet" class="bottom-sheet shadow-[0_-15px_30px_rgba(0,0,0,0.15)]">
         <div class="flex justify-center p-3 cursor-pointer" onclick="closeMatchStats()"><div class="w-12 h-1.5 bg-gray-300 rounded-full"></div></div>
         <div id="sheetContent" class="sheet-content px-6 pt-2"></div>
     </div>
 
-    <!-- 🌟 (ข้อ 1) Modal ป๊อปอัปดู 5 คู่ต่อไปที่เพื่อนทาย -->
     <div id="userPredModal" class="fixed inset-0 bg-black/60 z-[200] hidden items-center justify-center p-4 opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300" id="userPredModalContent">
             <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-4 text-white flex justify-between items-center">
@@ -137,12 +133,10 @@
                 <button onclick="closeUserPredModal()" class="text-white hover:text-gray-200"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="p-4 max-h-[60vh] overflow-y-auto bg-gray-50 space-y-2" id="popupUserMatches">
-                <!-- รายการ 5 คู่จะแสดงตรงนี้ -->
             </div>
         </div>
     </div>
 
-    <!-- Alert Modal ทั่วไป -->
     <div id="alertModal" class="fixed inset-0 bg-black/60 z-[200] hidden items-center justify-center p-4">
         <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl transform transition-all scale-95 opacity-0" id="alertModalContent">
             <div id="alertIcon" class="text-4xl mb-3"></div><h3 id="alertTitle" class="text-xl font-bold mb-2"></h3>
@@ -152,6 +146,7 @@
     </div>
 
     <script>
+        // 🛑 อย่าลืมเปลี่ยน 2 ค่านี้เป็นของคุณ 🛑
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbzhuQniZ2SGn3WDTdCZ0AlFlN7PyqO3ZfMYKqpuxs5uvJ-NkcKyfoREzetTPP8w9KbK1w/exec'; 
         const LIFF_ID = '2010404316-S8xX5pVG';    
 
@@ -160,7 +155,7 @@
         let userPreds = {};
         let myPredictions = {}; 
         let allMatchPredictions = {}; 
-        let globalLeaderboard = []; // เก็บตัวแปรจัดอันดับไว้ใช้กับป๊อปอัป
+        let globalLeaderboard = []; 
 
         const flagMap = {
             "เช็กเกีย": "🇨🇿", "แอฟริกาใต้": "🇿🇦", "สวิตเซอร์แลนด์": "🇨🇭", "บอสเนีย": "🇧🇦", "แคนาดา": "🇨🇦", "กาตาร์": "🇶🇦", "เม็กซิโก": "🇲🇽", "เกาหลีใต้": "🇰🇷",
@@ -216,7 +211,7 @@
                     globalLeaderboard = data.leaderboard || [];
                     
                     renderLeaderboard(globalLeaderboard);
-                    populateDateFilter(allMatches); // สร้างตัวกรองวันที่
+                    populateDateFilter(allMatches); 
                     renderResults(allMatches);
                     renderPredictForm(allMatches);
                 }
@@ -236,7 +231,6 @@
                 const isMe = user.name === currentUser.displayName;
                 const bgClass = isMe ? 'bg-blue-50/80' : 'bg-white/80';
                 
-                // สังเกตว่าใส่ onclick เรียกดูป๊อปอัป (ข้อ 1)
                 html += `
                     <li onclick="openUserUpcomingPreds(${index})" class="flex items-center justify-between p-4 ${bgClass} hover:bg-gray-100 transition-colors cursor-pointer active:scale-95">
                         <div class="flex items-center gap-3">
@@ -253,18 +247,15 @@
             html += '</ul>'; container.innerHTML = html;
         }
 
-        // 🌟 (ข้อ 1) ฟังก์ชันเปิด Modal ดู 5 คู่ต่อไปของเพื่อน
         function openUserUpcomingPreds(index) {
             const user = globalLeaderboard[index];
             const now = new Date();
             
-            // หาคู่ที่เวลาแข่งยังมาไม่ถึง
             let upcomingMatches = allMatches.filter(m => {
                 if(!m.matchTime) return false;
                 return new Date(m.matchTime) > now;
             });
             
-            // เรียงลำดับตามเวลาที่ใกล้จะเตะที่สุด และตัดมาแค่ 5 คู่
             upcomingMatches.sort((a,b) => new Date(a.matchTime) - new Date(b.matchTime));
             upcomingMatches = upcomingMatches.slice(0, 5);
 
@@ -312,24 +303,27 @@
             setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         }
 
-        // 🌟 (ข้อ 2) ฟังก์ชันสร้างตัวเลือกวันที่
+        // 🌟 ฟังก์ชันจัดการ Timezone
+        function getLocalDateString(dateStr) {
+            if(!dateStr) return "";
+            const d = new Date(dateStr);
+            if(isNaN(d)) return "";
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
         function populateDateFilter(matches) {
             const select = document.getElementById('dateFilterSelect');
             const uniqueDates = new Set();
             
             matches.forEach(m => {
                 if(m.matchTime) {
-                    const d = new Date(m.matchTime);
-                    // สร้าง format YYYY-MM-DD เพื่อใช้เป็น value
-                    const dateStr = d.toISOString().split('T')[0];
-                    uniqueDates.add(dateStr);
+                    const dateStr = getLocalDateString(m.matchTime);
+                    if(dateStr) uniqueDates.add(dateStr);
                 }
             });
 
-            // แปลง Set เป็น Array และเรียงลำดับวันที่
             const sortedDates = Array.from(uniqueDates).sort();
             
-            // ลบ option เก่า (ยกเว้นตัวแรก ALL)
             while(select.options.length > 1) { select.remove(1); }
 
             sortedDates.forEach(dateStr => {
@@ -344,7 +338,6 @@
             });
         }
 
-        // 🌟 (ข้อ 2) ฟังก์ชันเมื่อมีการเปลี่ยนวันที่
         function applyDateFilter() {
             const selectedDate = document.getElementById('dateFilterSelect').value;
             if(selectedDate === 'ALL') {
@@ -352,7 +345,7 @@
             } else {
                 const filteredMatches = allMatches.filter(m => {
                     if(!m.matchTime) return false;
-                    return m.matchTime.startsWith(selectedDate);
+                    return getLocalDateString(m.matchTime) === selectedDate;
                 });
                 renderResults(filteredMatches);
             }
@@ -404,7 +397,6 @@
             container.innerHTML = html;
         }
 
-        // Bottom Sheet Functions (เหมือนเดิม)
         function openMatchStats(matchId) {
             const match = allMatches.find(m => m.id === matchId);
             const stats = allMatchPredictions[matchId] || { 'H': [], 'D': [], 'A': [] };
@@ -501,7 +493,7 @@
         function showAlert(title, message, type = 'error') {
             const modal = document.getElementById('alertModal'), content = document.getElementById('alertModalContent'), iconEl = document.getElementById('alertIcon');
             document.getElementById('alertTitle').innerText = title; document.getElementById('alertMessage').innerText = message;
-            if(type === 'success') iconEl.innerHTML = '<i class="fa-regular fa-circle-check text-green-500"></i>'; else iconEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-red-500"></i>';
+            if(type === 'success') iconEl.innerHTML = '<i class="regular fa-circle-check text-green-500"></i>'; else iconEl.innerHTML = '<i class="solid fa-triangle-exclamation text-red-500"></i>';
             modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => { content.classList.remove('scale-95', 'opacity-0'); content.classList.add('scale-100', 'opacity-100'); }, 10);
         }
         function closeModal() {
