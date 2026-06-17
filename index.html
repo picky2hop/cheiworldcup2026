@@ -11,10 +11,15 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap');
         
-        /* 🌟 ปรับพื้นหลังเป็นสีเทาอ่อน สะอาดตา โหลดไว ไม่เอารูปภาพ */
+        /* 🌟 ปรับพื้นหลังเป็นรูปภาพจาก Google Drive แบบ Fixed และมี Overlay */
         body { 
             font-family: 'Prompt', sans-serif; 
-            background-color: #f3f4f6; 
+            background-image: linear-gradient(rgba(243, 244, 246, 0.85), rgba(243, 244, 246, 0.85)), 
+                              url('https://drive.google.com/uc?export=view&id=1RMeCesbyQhGvD4ObF2Umv38Lq5IAUoY9');
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
         }
         
         .tab-content { display: none; }
