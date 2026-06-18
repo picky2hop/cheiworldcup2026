@@ -11,7 +11,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap');
         
-        /* 🌟 ปรับพื้นหลังเป็นสีเทาอ่อน สะอาดตา โหลดไว ไม่เอารูปภาพ */
+        /* 🌟 พื้นหลังสีเทาอ่อน สบายตา โหลดไวที่สุด */
         body { 
             font-family: 'Prompt', sans-serif; 
             background-color: #f3f4f6; 
@@ -486,12 +486,19 @@
         }
 
         function showLoading(show, text = "") { const overlay = document.getElementById('loadingOverlay'); if(show) { document.getElementById('loadingText').innerText = text; overlay.classList.remove('hidden'); overlay.classList.add('flex'); } else { overlay.classList.add('hidden'); overlay.classList.remove('flex'); } }
+        
+        // 🟢 แก้ไขไอคอน fa-regular ตรงนี้ครับ 
         function showAlert(title, message, type = 'error') {
             const modal = document.getElementById('alertModal'), content = document.getElementById('alertModalContent'), iconEl = document.getElementById('alertIcon');
             document.getElementById('alertTitle').innerText = title; document.getElementById('alertMessage').innerText = message;
-            if(type === 'success') iconEl.innerHTML = '<i class="regular fa-circle-check text-green-500"></i>'; else iconEl.innerHTML = '<i class="solid fa-triangle-exclamation text-red-500"></i>';
-            modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => { content.classList.remove('scale-95', 'opacity-0'); content.classList.add('scale-100', 'opacity-100'); }, 10);
+            
+            if(type === 'success') iconEl.innerHTML = '<i class="fa-regular fa-circle-check text-green-500"></i>'; 
+            else iconEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-red-500"></i>';
+            
+            modal.classList.remove('hidden'); modal.classList.add('flex'); 
+            setTimeout(() => { content.classList.remove('scale-95', 'opacity-0'); content.classList.add('scale-100', 'opacity-100'); }, 10);
         }
+        
         function closeModal() {
             const modal = document.getElementById('alertModal'), content = document.getElementById('alertModalContent');
             content.classList.remove('scale-100', 'opacity-100'); content.classList.add('scale-95', 'opacity-0');
