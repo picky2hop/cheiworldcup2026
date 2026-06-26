@@ -11,7 +11,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap');
         
-        /* 🌟 พื้นหลังสีเทาอ่อน สบายตา โหลดไวที่สุด */
         body { 
             font-family: 'Prompt', sans-serif; 
             background-color: #f3f4f6; 
@@ -59,12 +58,20 @@
 
     <main class="p-4 max-w-md mx-auto relative z-10">
         
+        <!-- Tab 1: Leaderboard -->
         <section id="tab-leaderboard" class="tab-content active">
             <h2 class="text-xl font-bold mb-2 flex items-center gap-2"><i class="fa-solid fa-ranking-star text-yellow-500"></i> อันดับคะแนนสูงสุด</h2>
             <p class="text-[10px] text-gray-500 mb-4 bg-white/70 px-2 py-1 rounded inline-block">💡 แตะที่ชื่อเพื่อน เพื่อแอบดู 5 คู่ต่อไปที่เขาทาย!</p>
+            
             <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden border border-gray-100" id="leaderboardContainer"></div>
+            
+            <!-- ปุ่มแชร์ลง LINE (เพิ่มใหม่) -->
+            <button onclick="shareLeaderboardToChat()" class="mt-4 w-full bg-[#00B900] text-white font-bold py-3.5 rounded-xl shadow-md hover:shadow-lg transition-all flex justify-center items-center gap-2 active:scale-95">
+                <i class="fa-brands fa-line text-2xl"></i> แชร์ตารางคะแนนเข้าแชท
+            </button>
         </section>
 
+        <!-- Tab 2: Results -->
         <section id="tab-results" class="tab-content">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-futbol text-green-500"></i> ผลการแข่งขัน</h2>
@@ -79,6 +86,7 @@
             <div class="space-y-3" id="resultsContainer"></div>
         </section>
 
+        <!-- Tab 3: Predict -->
         <section id="tab-predict" class="tab-content">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-pen-to-square text-blue-500"></i> ส่งผลทายของคุณ</h2>
@@ -95,6 +103,7 @@
         </section>
     </main>
 
+    <!-- Bottom Navigation -->
     <nav class="fixed bottom-0 w-full bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50">
         <div class="flex justify-around max-w-md mx-auto">
             <button onclick="switchTab('leaderboard')" class="tab-btn active flex-1 py-3 flex flex-col items-center text-gray-400 hover:text-blue-600 transition-colors" data-target="tab-leaderboard">
@@ -110,12 +119,14 @@
         </div>
     </nav>
 
+    <!-- Bottom Sheet for Match Stats -->
     <div id="sheetBackdrop" class="sheet-backdrop" onclick="closeMatchStats()"></div>
     <div id="bottomSheet" class="bottom-sheet shadow-[0_-15px_30px_rgba(0,0,0,0.15)]">
         <div class="flex justify-center p-3 cursor-pointer" onclick="closeMatchStats()"><div class="w-12 h-1.5 bg-gray-300 rounded-full"></div></div>
         <div id="sheetContent" class="sheet-content px-6 pt-2"></div>
     </div>
 
+    <!-- Modal for User Upcoming Predictions -->
     <div id="userPredModal" class="fixed inset-0 bg-black/60 z-[200] hidden items-center justify-center p-4 opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300" id="userPredModalContent">
             <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-4 text-white flex justify-between items-center">
@@ -128,11 +139,11 @@
                 </div>
                 <button onclick="closeUserPredModal()" class="text-white hover:text-gray-200"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <div class="p-4 max-h-[60vh] overflow-y-auto bg-gray-50 space-y-2" id="popupUserMatches">
-            </div>
+            <div class="p-4 max-h-[60vh] overflow-y-auto bg-gray-50 space-y-2" id="popupUserMatches"></div>
         </div>
     </div>
 
+    <!-- Alert Modal -->
     <div id="alertModal" class="fixed inset-0 bg-black/60 z-[200] hidden items-center justify-center p-4">
         <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl transform transition-all scale-95 opacity-0" id="alertModalContent">
             <div id="alertIcon" class="text-4xl mb-3"></div><h3 id="alertTitle" class="text-xl font-bold mb-2"></h3>
@@ -142,13 +153,12 @@
     </div>
 
     <script>
-        // 🛑 อย่าลืมเปลี่ยน 2 ค่านี้เป็นของคุณ 🛑
+        // 🛑 นำ URL หลังบ้านของคุณมาใส่ที่นี่ 🛑
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbzhuQniZ2SGn3WDTdCZ0AlFlN7PyqO3ZfMYKqpuxs5uvJ-NkcKyfoREzetTPP8w9KbK1w/exec'; 
         const LIFF_ID = '2010404316-S8xX5pVG';    
 
         let currentUser = { uid: 'test_user_01', displayName: 'ผู้เล่นทดสอบ', pictureUrl: 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}; 
         let allMatches = [];
-        let userPreds = {};
         let myPredictions = {}; 
         let allMatchPredictions = {}; 
         let globalLeaderboard = []; 
@@ -201,8 +211,7 @@
                 const data = await response.json();
                 if(data.status === 'success') {
                     allMatches = data.matches;
-                    userPreds = data.userPredictions || {};
-                    myPredictions = {...userPreds}; 
+                    myPredictions = {...(data.userPredictions || {})}; // Cleaned up code here
                     allMatchPredictions = data.matchPredictions || {}; 
                     globalLeaderboard = data.leaderboard || [];
                     
@@ -299,7 +308,6 @@
             setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         }
 
-        // 🌟 ฟังก์ชันจัดการ Timezone แยกระหว่างวันท้องถิ่น
         function getLocalDateString(dateStr) {
             if(!dateStr) return "";
             const d = new Date(dateStr);
@@ -319,7 +327,6 @@
             });
 
             const sortedDates = Array.from(uniqueDates).sort();
-            
             while(select.options.length > 1) { select.remove(1); }
 
             sortedDates.forEach(dateStr => {
@@ -485,9 +492,38 @@
             finally { showLoading(false); }
         }
 
+        // ==========================================
+        // ฟังก์ชันแชร์ตารางคะแนนลง LINE Chat
+        // ==========================================
+        function shareLeaderboardToChat() {
+            if (!liff.isLoggedIn() || !liff.isApiAvailable('shareTargetPicker')) {
+                showAlert('❌ แชร์ไม่ได้', 'โปรดเปิดผ่านแอพ LINE เพื่อใช้งานฟีเจอร์นี้');
+                return;
+            }
+
+            let textMsg = `🏆 สรุปตารางคะแนนฟุตบอลโลก 2026 🏆\n\n`;
+            const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+            
+            for(let i=0; i<globalLeaderboard.length; i++) {
+                if(i >= 15) break; // แชร์ได้สูงสุด 15 อันดับ ป้องกันข้อความยาวเกินไป
+                let icon = i < 10 ? medals[i] : '🏅';
+                let p = globalLeaderboard[i];
+                textMsg += `${icon} อันดับ ${i+1}: @${p.name} - ${p.score} แต้ม\n`;
+            }
+            
+            textMsg += `\n👇 เข้าไปเช็คผลด้วยตัวเองและทายคู่ต่อไปได้ที่นี่เลย:\nhttps://liff.line.me/${LIFF_ID}`;
+
+            liff.shareTargetPicker([
+                { type: "text", text: textMsg }
+            ]).then((res) => {
+                if (res) showAlert('🎉 แชร์สำเร็จ!', 'ส่งตารางคะแนนเข้าแชทเรียบร้อยแล้ว', 'success');
+            }).catch((error) => {
+                console.error("แชร์ไม่สำเร็จ", error);
+            });
+        }
+
         function showLoading(show, text = "") { const overlay = document.getElementById('loadingOverlay'); if(show) { document.getElementById('loadingText').innerText = text; overlay.classList.remove('hidden'); overlay.classList.add('flex'); } else { overlay.classList.add('hidden'); overlay.classList.remove('flex'); } }
         
-        // 🟢 แก้ไขไอคอน fa-regular ตรงนี้ครับ 
         function showAlert(title, message, type = 'error') {
             const modal = document.getElementById('alertModal'), content = document.getElementById('alertModalContent'), iconEl = document.getElementById('alertIcon');
             document.getElementById('alertTitle').innerText = title; document.getElementById('alertMessage').innerText = message;
